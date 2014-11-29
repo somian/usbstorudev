@@ -1,0 +1,30 @@
+ENV{ID_BUS}!="usb", GOTO="USBREMOVABLE_END"
+
+ENV{DEVTYPE}=="partition",   ACTION=="add", KERNEL=="sd[abcdefghijklmnopqrstuvwxyz]?", GOTO="USBREMOVABLE__PART_INI"
+ENV{DEVTYPE}=="floppy",      ACTION=="add", KERNEL=="sd[abcdefghijklmnopqrstuvwxyz]",  GOTO="USBREMOVABLE__BLOCK_INI"
+ENV{DEVTYPE}=="disk",        ACTION=="add", KERNEL=="sd[abcdefghijklmnopqrstuvwxyz]",  GOTO="USBREMOVABLE__BLOCK_INI"
+ENV{DEVTYPE}=="disk", KERNEL=="sd[abcdefghijklmnopqrstuvwxyz]*", ACTION=="change", ENV{DISK_MEDIA_CHANGE}=="1", GOTO="USBREMOVABLE__BLOCK_INI"
+
+
+# SUBSYSTEM=="block",     ACTION=="add",        KERNEL=="sd[!abc]",  GOTO="USBREMOVABLE__BLOCK_INI"
+
+LABEL="USBREMOVABLE__PART_INI"
+RUN+="/lib/udev/storage-automount.sh", ENV{REMOVE_CMD}="/lib/udev/storage-autoUNmount.sh", GOTO="USBREMOVABLE_END"
+
+LABEL="USBREMOVABLE__BLOCK_INI"
+
+TAG{CUSTOM_AUTO_MOUNTPOINT}="drive-mount", ENV{RULE_PRODUCT}="SYSFS{product}", RUN+="/lib/udev/storage-automount.sh", ENV{REMOVE_CMD}="/lib/udev/storage-autoUNmount.sh", GOTO="USBREMOVABLE_END"
+
+# Documentation: "OPTIONS{watch}"
+# Watch the device node with inotify; when the node is closed after being opened for writing, a change uevent is synthesized.
+#-# $links ...A space-separated list of the current symlinks. The value is only set during a remove event or if an earlier rule assigned a value.
+
+# How to use PROGRAM
+# Execute a program to determine whether there is a match; the key is true if the program
+# returns successfully. The device properties are made available to the executed program
+# in the environment. The program's stdout is available in the RESULT key.
+
+#-# 
+
+LABEL="USBREMOVABLE_END"
+
