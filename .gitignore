@@ -1,0 +1,3 @@
+# Ignore Vim swapfiles on a badly-configured system on which vim
+# uses the wd to write swapfiles {ugh}.
+*.swp
